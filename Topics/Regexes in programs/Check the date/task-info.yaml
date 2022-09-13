@@ -1,0 +1,22 @@
+type: code
+files:
+- name: src/Main.java
+  visible: true
+  text: |-
+    import java.util.*;
+
+    class Date {
+
+        public static void main(String[] args) {
+            Scanner scn = new Scanner(System.in);
+            String date = scn.nextLine();
+            String dateRegex = //put your code
+        }
+    }
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/16170#comment
+status: Solved
+feedback:
+  message: <html>Correct solution</html>
+  time: Fri, 02 Sep 2022 21:13:57 UTC
+record: -1

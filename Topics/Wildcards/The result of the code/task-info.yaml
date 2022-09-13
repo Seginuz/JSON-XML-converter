@@ -1,0 +1,25 @@
+type: choice
+is_multiple_choice: false
+options:
+- text: Compile-time error on &quot;numbers.add(null);&quot;
+- text: NullPointerException is thrown
+- text: Runtime error on &quot;numbers.add(null);&quot;
+- text: null printed to standard output
+- text: Compile-time error on &quot;return numbers.get(0);&quot;
+- text: Runtime error on &quot;return numbers.get(0);&quot;
+files:
+- name: src/Task.java
+  visible: true
+  text: |
+    // You can experiment here, it won’t be checked
+
+    public class Task {
+      public static void main(String[] args) {
+        // put your code here
+      }
+    }
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/2637#comment
+status: Solved
+record: -1
+local_check: false

@@ -1,0 +1,16 @@
+<h2>The result of the code</h2>
+<p>What will be the result of the following code compilation and execution:</p><pre><code class="language-java">import java.util.ArrayList;
+import java.util.List;
+
+public class Application {
+  
+  public static void main(String[] args) {
+    System.out.println(wildcardsTest(new ArrayList&lt;&gt;()));  
+  }
+  
+  public static Integer wildcardsTest(List&lt;? extends Integer&gt; numbers) {
+    numbers.add(null);
+    return numbers.get(0);
+  }
+
+}</code></pre>

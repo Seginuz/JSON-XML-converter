@@ -1,0 +1,26 @@
+type: choice
+is_multiple_choice: false
+options:
+- text: 'This wouldn''t work: this code tries to implement multiple interfaces with
+    same erasure'
+- text: This wouldn't work since class can't have multiple methods with same signatures
+- text: This wouldn't work since erasure for Byte, Integer and Long is Number
+- text: 'The idea is great: we often do not care of exact type during comparison'
+- text: This wouldn't work because there is no natural order for integers of different
+    types
+files:
+- name: src/Task.java
+  visible: true
+  text: |
+    // You can experiment here, it won’t be checked
+
+    public class Task {
+      public static void main(String[] args) {
+        // put your code here
+      }
+    }
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/2629#comment
+status: Solved
+record: -1
+local_check: false

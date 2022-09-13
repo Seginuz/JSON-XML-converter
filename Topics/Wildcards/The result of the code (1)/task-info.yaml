@@ -1,0 +1,23 @@
+type: choice
+is_multiple_choice: false
+options:
+- text: compile time error
+- text: normal execution with empty list printing
+- text: run time error
+files:
+- name: src/Task.java
+  visible: true
+  text: |
+    // You can experiment here, it won’t be checked
+
+    public class Task {
+      public static void main(String[] args) {
+        // put your code here
+      }
+    }
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/2642#comment
+status: Solved
+record: -1
+custom_name: The result of the code
+local_check: false

@@ -1,0 +1,11 @@
+# Project exclude paths
+/.gradle/
+/JSON - XML converter/task/build/
+/JSON - XML converter/task/out/
+/JSON - XML converter/task/out/production/classes/
+/Topics/Regexes in programs/Check the date/out/
+/Topics/Regexes in programs/Check the date/out/production/classes/
+/Topics/The utility class Collections/Frequency of characters/out/
+/Topics/The utility class Collections/Frequency of characters/out/production/classes/
+/Topics/The utility class Collections/The first index of a sublist/out/
+/Topics/The utility class Collections/The first index of a sublist/out/production/classes/
