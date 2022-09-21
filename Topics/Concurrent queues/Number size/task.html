@@ -1,0 +1,33 @@
+<h2>Number size</h2>
+<p>Take a look at the code snippet below and pick the right option about <code class="language-java">number</code> size</p>
+
+<pre><code class="language-java">class ConcurrentQueueTest {
+    public static void main(String[] args) throws InterruptedException {
+        Queue&lt;Integer&gt; numbers = new ConcurrentLinkedQueue&lt;&gt;();
+        addNumbers(numbers);
+
+        Thread thread1 = new Thread(() -&gt; pollNumbers(numbers));
+        Thread thread2 = new Thread(() -&gt; pollNumbers(numbers));
+
+        thread1.start();
+        thread2.start();
+
+        thread1.join();
+        thread2.join();
+
+        System.out.println(numbers.size()); // ?
+    }
+
+    private static void addNumbers(Queue&lt;Integer&gt; target) {
+        for (int i = 0; i &lt; 100_000; i++) {
+            target.add(i);
+        }
+    }
+
+    private static void pollNumbers(Queue&lt;Integer&gt; target) {
+        for (int i = 0; i &lt; 50_000; i++) {
+            target.poll();
+        }
+    }
+}
+</code></pre>

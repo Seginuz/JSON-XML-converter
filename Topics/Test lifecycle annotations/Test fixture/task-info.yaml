@@ -1,0 +1,46 @@
+type: code
+files:
+- name: src/Main.java
+  visible: true
+  text: |-
+    class SampleClassTests {
+        // Your task is to setup TestUtils and instantiate the instance field.
+        SampleClass instance;
+
+        // @BeforeAll
+        static void beforeAll() {
+
+        }
+
+        // @AfterAll
+        static void afterAll() {
+
+        }
+
+        // @BeforeEach
+        void beforeEach() {
+
+        }
+
+        // @AfterEach
+        void afterEach() {
+
+        }
+
+        // @Test
+        void testMethodOne() {
+            Assertions.assertTrue(instance.methodOne());
+        }
+
+        // @Test
+        void testMethodTwo() {
+            Assertions.assertTrue(instance.methodTwo());
+        }
+    }
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/12876#comment
+status: Solved
+feedback:
+  message: <html>Correct solution</html>
+  time: Wed, 21 Sep 2022 09:20:34 UTC
+record: -1

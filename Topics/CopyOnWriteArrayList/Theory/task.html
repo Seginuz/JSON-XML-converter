@@ -1,0 +1,58 @@
+<h2>CopyOnWriteArrayList</h2>
+<html><body><p>You are becoming a more experienced developer and conquering the peaks of multithreading. And today, our guest is the <code class="language-java">CopyOnWriteArrayList</code> class, the member of the <code class="language-java">java.util.concurrent</code> package. Look closely at the name: <code class="language-java">ArrayList</code> plus the copy-on-write technique. Together, they give you a thread-safe representation of the <code class="language-java">ArrayList</code> class. </p><h5 id="copyonwritearraylist">CopyOnWriteArrayList</h5><p>Note that it's an "old class" — it has existed since Java 5.</p><p>The creation of <code class="language-java">CopyOnWriteArrayList</code> looks the same as with <code class="language-java">ArrayList</code>:</p><pre><code class="language-java">CopyOnWriteArrayList&lt;String&gt; onWriteArrayList = new CopyOnWriteArrayList&lt;&gt;();</code></pre><p>Now let's look at how its methods allow thread safety. Imagine that our <code class="language-java">CopyOnWriteArrayList</code> looks like this:</p><p style="text-align: center;"><img alt="" src="https://ucarecdn.com/eb9631f8-aa5f-427a-928a-6a74ca828048/"/></p><p>And we would like to add a new element to the end of this list:</p><pre><code class="language-java">onWriteArrayList.add("List!"); </code></pre><p> These are the steps it goes through for it to happen:</p><p style="text-align: center;"><img alt="" src="https://ucarecdn.com/5d79f9ba-d96c-4a24-8bcc-21dc2ef063de/"/></p><p>First, the lock is set. Second, a copy of our list will be created. Third, the copy is updated with a new element. Then, our list becomes an "updated copy". And the final step is unlock. This technique is called <strong>Copy-On-Write</strong><em> </em>and it ensures thread safety.</p><p> </p><p>All mutative operations (<code class="language-java">add</code>, <code class="language-java">set</code>, <code class="language-java">remove</code> etc.) use the copy-on-write technique: they create a cloned copy of the original list. Because of this, performing many update operations can be very costly.</p><p> </p><p>If you are curious about details, you should know that the underlying structure of <code class="language-java">CopyOnWriteArrayList</code> is an array of Objects.</p><p>And now, ladies and gentlemen, the highlight of our program — two threads, but only one list.</p><h5 id="two-threads-one-list">Two threads, one list</h5><p>Here is an example with two threads: <code class="language-java">main</code> and <code class="language-java">writer</code>. Both of them add numbers to the same <code class="language-java">CopyOnWriteArrayList</code>.</p><pre><code class="language-java">public static void main(String[] args) throws InterruptedException {
+    CopyOnWriteArrayList&lt;Integer&gt; onWriteArrayList = new CopyOnWriteArrayList&lt;&gt;();
+
+    Thread writer = new Thread(() -&gt; addNumbers(onWriteArrayList));
+    writer.start();
+
+    addNumbers(onWriteArrayList); // add numbers from the main thread
+
+    writer.join(); // wait for writer thread to finish
+
+    System.out.println(onWriteArrayList.size()); // the result is always the same
+}
+
+private static void addNumbers(CopyOnWriteArrayList&lt;Integer&gt; list) {
+    for (int i = 0; i &lt; 100_000; i++) {
+        list.add(i);
+    }
+}</code></pre><p>If you try it, the result is always 200_000.</p><p>But what if one thread added numbers, but the second thread removed them?</p><pre><code class="language-java">public static void main(String[] args) throws InterruptedException {
+    CopyOnWriteArrayList&lt;Integer&gt; onWriteArrayList = new CopyOnWriteArrayList&lt;&gt;();
+
+
+    Thread writer = new Thread(() -&gt; addNumbers(onWriteArrayList));
+    writer.start();
+
+    removeNumbers(onWriteArrayList); // remove numbers from the main thread
+
+    writer.join(); // wait for writer thread to finish
+
+    System.out.println(onWriteArrayList.size()); // the result is always the same
+}
+
+private static void addNumbers(CopyOnWriteArrayList&lt;Integer&gt; list) {
+    for (int i = 0; i &lt; 100_000; i++) {
+        list.add(i);
+    }
+}
+
+private static void removeNumbers(CopyOnWriteArrayList&lt;Integer&gt; list) {
+    int index = 0;
+    while (index &lt; 100_000) {
+        if (!list.isEmpty()) {
+            list.remove(0);
+            index++;
+        }
+    }
+}</code></pre><p>In this example, we wanted to add 100_000 numbers and remove 100_000 numbers from the same list. Everything works fine thanks to the copy-on-write<em> </em>technique. Once one element is being added, the removing is paused and vice versa. But you can never guarantee that the selected index will exist at the moment. That's why we were removing only the zero-index elements.</p><p> </p><p>If you perform any <code class="language-java">read</code> operation while updating the list, you will always get the "old" version of the list, that is, how your list looked before the update started.</p><p> </p><h5 id="what-about-an-iterator">What about an iterator?</h5><p>Let's consider a simple example:</p><pre><code class="language-java">CopyOnWriteArrayList&lt;Integer&gt; onWriteArrayList = new CopyOnWriteArrayList&lt;&gt;();
+onWriteArrayList.add(1);
+onWriteArrayList.add(2);
+onWriteArrayList.add(3);
+
+Iterator&lt;Integer&gt; iterator = onWriteArrayList.iterator();
+
+onWriteArrayList.add(4);
+
+while(iterator.hasNext()) {
+    System.out.print(iterator.next() + " "); // we will see only "1 2 3"
+}</code></pre><p>Do you think we will see three or four elements? The answer is only three. Since the iterator has been created, it will use the <strong>immutable snapshot</strong> of the <code class="language-java">CopyOnWriteArrayList</code>. </p><p>Also, because of the immutability, you can't use <code class="language-java">iterator.remove()</code>.</p><p> </p><p><code class="language-java">CopyOnWriteArrayList</code> allows thread-safe iterating over its elements when the underlying list gets modified by other threads.</p><p> </p><h5 id="conclusion">Conclusion</h5><p><code class="language-java">CopyOnWriteArrayList</code> comes to the rescue when you'd like to use <code class="language-java">ArrayList</code> but the environment is multithreading.</p><p>What to remember:</p><ul><li><p>It creates a new internal copy for every update operation (with the copy-on-write technique).</p></li><li><p><code class="language-java">Read</code> operations return the "old" version of the list while an update operation is happening.</p></li><li><p>An iterator uses the immutable snapshot of the <code class="language-java">CopyOnWriteArrayList</code>.</p></li><li><p>It's very costly to update <code class="language-java">CopyOnWriteArrayList</code> often.</p></li></ul></body></html>

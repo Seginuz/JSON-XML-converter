@@ -1,0 +1,138 @@
+<h2>Concurrent queues</h2>
+<p>One of the most popular kinds of concurrent collections is a <strong>concurrent queue</strong>. It is often used to organize some kind of communication between multiple threads within an application by exchanging some data (messages, tasks, unit of works, or something else). To achieve it, several threads should have a reference to a common queue and invoke its methods.</p>
+
+<p>You already know that a queue is a collection that works according to the <strong>first-in-first-out principle</strong> (FIFO): the first element added to the queue will be the first one to be removed.</p>
+
+<h5 id="thread-safety-of-concurrentlinkedqueue" style="text-align: center;">Thread-safety of ConcurrentLinkedQueue</h5>
+
+<p>The simplest type of concurrent queue is <code class="language-java">ConcurrentLinkedQueue</code> that is very similar to a standard queue but it is also <strong>thread-safe</strong>. It has two methods called <code class="language-java">add</code> and <code class="language-java">offer</code> to insert an element to the tail of a queue.</p>
+
+<p>The following example demonstrates the thread-safety of this concurrent queue. The program adds new elements using two threads and then prints the total number of elements in this queue:</p>
+
+<pre><code class="language-java">import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+public class ConcurrentQueueDemo {
+
+    public static void main(String[] args) throws InterruptedException {
+        // assigning thread-safe implementation
+        Queue&lt;Integer&gt; numbers = new ConcurrentLinkedQueue&lt;&gt;();
+
+        Thread writer = new Thread(() -&gt; addNumbers(numbers));
+        writer.start();
+
+        addNumbers(numbers); // add number from the main thread
+
+        writer.join(); // wait for writer thread
+
+        System.out.println(numbers.size()); // it prints 200000
+    }
+
+    private static void addNumbers(Queue&lt;Integer&gt; target) {
+        for (int i = 0; i &lt; 100_000; i++) {
+            target.add(i);
+        }
+    }
+}</code></pre>
+
+<p>It is not surprising, that this program always prints 200000 as expected, no element lost. You may start this program as many time as you need. So, <code class="language-java">ConcurrentLinkedQueue</code> is really thread-safe. There is also no <code class="language-java">ConcurrentModificationException</code> if we would like to iterate through this queue.</p>
+
+<p><div class="alert alert-warning">Note, that any single operation provided by this queue is thread-safe. However, if we group such operations together in a single method or a sequence of statements, the whole group of operations will not be thread-safe.</p>
+
+<p>Moreover bulk operations of <code class="language-java">ConcurrentLinkedQueue</code> that add, remove, or examine multiple elements, such as <code class="language-java">addAll</code>, <code class="language-java">removeIf</code>, <code class="language-java">forEach</code> methods are <em>not</em> guaranteed to be performed atomically</div></p>
+
+<h5 id="communication-between-threads" style="text-align: center;">Communication between threads</h5>
+
+<p>The following picture demonstrates how to organize communication between threads using a queue. One thread puts elements at the head of a queue, while another thread takes elements from the tail of the same queue.</p>
+
+<p style="text-align: center;"><img alt="" height="136" src="https://ucarecdn.com/afdf8010-3627-4423-99ed-6c321acee910/" width="601"></p>
+
+<p>We suppose that <code class="language-java">Queue</code> is thread-safe, otherwise, it will not work correctly.</p>
+
+<p>It is also possible when more than two threads are interacting through a queue.</p>
+
+<p style="text-align: center;"><img alt="" height="169" src="https://ucarecdn.com/f7c072f0-2263-4b21-80c0-701d83d0052b/" width="622"></p>
+
+<p>The number of threads can be different.</p>
+
+<p>Suppose we want to exchange data between two threads using a concurrent queue. One thread will generate three numbers while another thread will accept these numbers and print them. There is a method called <code class="language-java">poll</code> used for getting the current first element of a concurrent queue. It returns an element or <code class="language-java">null</code> if the queue is empty.</p>
+
+<p>Here is a snippet of code with additional <code class="language-java">sleep</code> invocations to make the output more predictable. The <code class="language-java">generator</code> and <code class="language-java">poller</code> interact using a concurrent queue and no data is lost because the queue is fully thread-safe.</p>
+
+<pre><code class="language-java">import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
+
+public class GeneratorDemo {
+
+    public static void main(String[] args) {
+        Queue&lt;Integer&gt; queue = new ConcurrentLinkedQueue&lt;&gt;();
+
+        Thread generator = new Thread(() -&gt; {
+            try {
+                queue.add(10);
+                TimeUnit.MILLISECONDS.sleep(10);
+                queue.add(20);
+                TimeUnit.MILLISECONDS.sleep(10);
+                queue.add(30);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        Thread poller = new Thread(() -&gt; {
+            int countRead = 0;
+            while (countRead != 3) {
+                Integer next = queue.poll();
+                if (next != null) {
+                    countRead++;
+                }
+                System.out.println(next);
+                try {
+                    TimeUnit.MILLISECONDS.sleep(10);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        generator.start();
+        poller.start();
+    }
+}</code></pre>
+
+<p>Here is an example of an output:</p>
+
+<pre><code class="language-java">null
+10
+20
+null
+30</code></pre>
+
+<p>It may be slightly different but all numbers should be printed.</p>
+
+<h5 id="composite-operations" style="text-align: center;">Composite operations</h5>
+
+<p>Every standard method of a concurrent queue provides thread-safety. However, if you want to compose several methods together, there are no such guarantees.</p>
+
+<p>Suppose, you want to add two elements in a concurrent queue so that they follow each other in this queue. Here is a method:</p>
+
+<pre><code class="language-java">public static void addTwoElements(ConcurrentLinkedQueue&lt;Integer&gt; queue, int e1, int e2) {
+    queue.add(e1); // (1)
+    queue.add(e2); // (2)
+}</code></pre>
+
+<p>The method will add two elements one after the other only in case of one writing thread. If there are more writing threads, one thread may perform (1), and then another thread may intervene and do the same. Only after it, the first thread may perform (2). Thus, the order can be broken in some cases. This problem appears because the method is not <strong>atomic</strong>.</p>
+
+<p>As mentioned above bulk methods such as <code class="language-java">addAll</code> are also not atomic and don't help to avoid this problem</p>
+
+<pre><code class="language-java">queue.addAll(List.of(e1, e2));</code></pre>
+
+<p>The problem can be solved only by external synchronization, e.g.</p>
+
+<pre><code class="language-java">public static synchronized void addTwoElements(ConcurrentLinkedQueue&lt;Integer&gt; queue, int e1, int e2) {
+    queue.add(e1); // (1)
+    queue.add(e2); // (2)
+}</code></pre>
+
+<p>In that case, you need to be sure that all operations which update the queue should be synchronized, not only the method <code class="language-java">addTwoElements</code></p>

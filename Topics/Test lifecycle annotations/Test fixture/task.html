@@ -1,0 +1,30 @@
+<h2>Test fixture</h2>
+<html><body><p>You are provided with a test class <code class="language-java">SampleClassTests</code> with methods named according to their execution order defined by the test instance lifecycle. This class is intended to test methods of <code class="language-java">SampleClass</code> which has a complicated instantiation process, so you are also provided with <code class="language-java">TestUtils</code> helper class with <code class="language-java">getSampleClassInstance</code> static method that creates instances of <code class="language-java">SampleClass</code>. However, in order to make <code class="language-java">TestUtils</code> work, you need run its <code class="language-java">timeConsumingSetup</code> static method first:</p>
+<pre><code class="language-java">class SampleClass {
+
+    public boolean methodOne() {
+        // Implementation details
+    }
+
+    public boolean methodTwo() {
+        // Implementation details
+    }
+}
+
+class TestUtils {
+
+    static SampleClass getSampleClassInstance() {
+        // implementation details
+    }
+
+    static void timeConsumingSetup() {
+        // implementation details
+    }
+}
+
+</code></pre>
+<p>So your task is to start up <code class="language-java">TestUtils</code> by calling its <code class="language-java">timeConsumingSetup</code>method, create new instances of <code class="language-java">SampleClass</code> using the <code class="language-java">TestUtils.getSampleClassInstance()</code> method (testing each <code class="language-java">SampleClass</code> method will require a new instance of <code class="language-java">SampleClass</code>).</p>
+<p><button class="btn-sm btn-outline-secondary" onclick="getElementById('hint-1376').style.display='inline'">
+        Hint
+      </button>
+</p><div id="hint-1376" style="display:none;">Keep in mind that <code class="language-java">timeConsumingSetup</code> is really time consuming as its name says.</div></body></html><br><b>Sample Input:</b><br><pre><code class="language-no-highlight">testMethodOne<br>testMethodTwo<br></code></pre><br><b>Sample Output:</b><br><pre><code class="language-no-highlight">PASSED<br>PASSED</code></pre><br><br><br><font color="gray">Memory limit: 256 MB</font><br><font color="gray">Time limit: 5 seconds</font><br><br>
